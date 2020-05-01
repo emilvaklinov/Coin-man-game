@@ -24,7 +24,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let coinCategory : UInt32 = 0x1 << 2
     let bombCategory : UInt32 = 0x1 << 3
     let groundAndCeilCategory : UInt32 = 0x1 << 4
-//    let bombCategory : UInt32 = 0x1 << 5
     
     var score = 0
     
@@ -43,7 +42,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         ceil = childNode(withName: "ceil") as? SKSpriteNode
         ceil?.physicsBody?.categoryBitMask = groundAndCeilCategory
-        ceil?.physicsBody?.categoryBitMask = coinManCategory
+//        ceil?.physicsBody?.categoryBitMask = coinManCategory
         
         scoreLabel = childNode(withName: "scoreLabel") as? SKLabelNode
    
@@ -51,17 +50,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
       startTimers()
       createGrass()
     }
-    
-//    func createGrass() {
-//        let sizingGrass = SKSpriteNode(imageNamed: "grass")
-//        let numberOfGrass = size.width / sizingGrass.size.width + 1
-//        for number in 0...numberOfGrass {
-//            let grass = SKSpriteNode(imageNamed: "grass")
-//            grass.physicsBody = SKPhysicsBody(rectangleOf: grass.size)
-//            grass.physicsBody?.categoryBitMask = coinManCategory
-//        }
-//    }
+
     func createGrass() {
+        
     let sizingGrass = SKSpriteNode(imageNamed: "grass")
     let numberOfGrass = Int(size.width / sizingGrass.size.width) + 1
     for number in 0...numberOfGrass {
@@ -77,8 +68,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let grassX = -size.width / 2 + grass.size.width / 2 + grass.size.width * CGFloat(number)
         grass.position = CGPoint(x: grassX, y: -size.height / 2 + grass.size.height / 2 - 18)
         let speed = 100.0
+            // Moving the grass to left
         let firstMoveLeft = SKAction.moveBy(x: -grass.size.width - grass.size.width * CGFloat(number), y: 0, duration: TimeInterval(grass.size.width + grass.size.width * CGFloat(number)) / speed)
         
+        // Duplicating the grass continiosly
         let resetGrass = SKAction.moveBy(x: size.width + grass.size.width, y: 0, duration: 0)
         let grassFullMove = SKAction.moveBy(x: -size.width - grass.size.width, y: 0, duration: TimeInterval(size.width + grass.size.width) / speed)
         let grassMovingForver = SKAction.repeatForever(SKAction.sequence([grassFullMove,resetGrass]))
@@ -100,7 +93,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if scene?.isPaused == false {
-        coinMan?.physicsBody?.applyForce(CGVector(dx: 0, dy: 100_000))
+        coinMan?.physicsBody?.applyForce(CGVector(dx: 0, dy: 70000))
         }
         let touch = touches.first
         if let location = touch?.location(in: self) {
@@ -129,9 +122,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         coin.physicsBody?.collisionBitMask = 0
         addChild(coin)
         
+        let sizingGrass = SKSpriteNode(imageNamed: "grass")
         // Adding coins to starting possition
         let maxY = size.height / 2 - coin.size.height / 2
-        let minY = -size.height / 2 + coin.size.height / 2
+        let minY = -size.height / 2 + coin.size.height / 2 + sizingGrass.size.height
         let range = maxY - minY
         let coinY = maxY - CGFloat(arc4random_uniform(UInt32(range)))
         coin.position = CGPoint(x: size.width / 2 + coin.size.width / 2, y: coinY)
@@ -150,14 +144,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         bomb.physicsBody?.collisionBitMask = 0
         addChild(bomb)
         
+        let sizingGrass = SKSpriteNode(imageNamed: "grass")
         //Adding bombs to starting possition
         let maxY = size.height / 2 - bomb.size.height / 2
-        let minY = -size.height / 2 + bomb.size.height / 2
+        let minY = -size.height / 2 + bomb.size.height / 2 + sizingGrass.size.height
         let range = maxY - minY
         let bombY = maxY - CGFloat(arc4random_uniform(UInt32(range)))
         bomb.position = CGPoint(x: size.width / 2 + bomb.size.width / 2, y: bombY)
         
-        let moveLeft = SKAction.moveBy(x: -size.width - bomb.size.width, y: 0, duration: 4)
+        let moveLeft = SKAction.moveBy(x: -size.width - bomb.size.width, y: 0, duration: 4.1)
         
         bomb.run(SKAction.sequence([moveLeft, SKAction.removeFromParent()]))
     }
