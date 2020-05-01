@@ -5,7 +5,6 @@
 //  Created by Emil Vaklinov on 01/05/2020.
 //  Copyright © 2020 Emil Vaklinov. All rights reserved.
 //
-
 import SpriteKit
 import GameplayKit
 
@@ -14,7 +13,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
    var coinMan: SKSpriteNode?
     var coinTimer: Timer?
     var bombTimer: Timer?
-    var ground: SKSpriteNode?
+//    var ground: SKSpriteNode?
     var ceil: SKSpriteNode?
     var scoreLabel: SKLabelNode?
     var yourScoreLabel: SKLabelNode?
@@ -35,19 +34,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         coinMan = childNode(withName: "coinMan") as? SKSpriteNode
         coinMan?.physicsBody?.categoryBitMask = coinManCategory
         coinMan?.physicsBody?.contactTestBitMask = coinCategory | bombCategory
-//        coinMan?.physicsBody?.collisionBitMask = groundAndCeilCategory
+        coinMan?.physicsBody?.collisionBitMask = groundAndCeilCategory
         var coinManRun: [SKTexture] = []
         for number in 1...5 {
             coinManRun.append(SKTexture(imageNamed: "frame-\(number)"))
         }
         coinMan?.run(SKAction.repeatForever(SKAction.animate(with: coinManRun, timePerFrame: 0.05)))
         
-        ground = childNode(withName: "ground") as? SKSpriteNode
-//        ground?.physicsBody?.categoryBitMask = groundAndCeilCategory
-        ground?.physicsBody?.categoryBitMask = coinManCategory
-        
         ceil = childNode(withName: "ceil") as? SKSpriteNode
-//        ceil?.physicsBody?.categoryBitMask = groundAndCeilCategory
+        ceil?.physicsBody?.categoryBitMask = groundAndCeilCategory
         ceil?.physicsBody?.categoryBitMask = coinManCategory
         
         scoreLabel = childNode(withName: "scoreLabel") as? SKLabelNode
@@ -57,8 +52,39 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
       createGrass()
     }
     
+//    func createGrass() {
+//        let sizingGrass = SKSpriteNode(imageNamed: "grass")
+//        let numberOfGrass = size.width / sizingGrass.size.width + 1
+//        for number in 0...numberOfGrass {
+//            let grass = SKSpriteNode(imageNamed: "grass")
+//            grass.physicsBody = SKPhysicsBody(rectangleOf: grass.size)
+//            grass.physicsBody?.categoryBitMask = coinManCategory
+//        }
+//    }
     func createGrass() {
+    let sizingGrass = SKSpriteNode(imageNamed: "grass")
+    let numberOfGrass = Int(size.width / sizingGrass.size.width) + 1
+    for number in 0...numberOfGrass {
+        let grass = SKSpriteNode(imageNamed: "grass")
+        grass.physicsBody = SKPhysicsBody(rectangleOf: grass.size)
+        grass.physicsBody?.categoryBitMask = groundAndCeilCategory
+        grass.physicsBody?.collisionBitMask = coinManCategory
+        grass.physicsBody?.affectedByGravity = false
+        grass.physicsBody?.isDynamic = false
+        addChild(grass)
         
+        // Adding the grass to the bottom
+        let grassX = -size.width / 2 + grass.size.width / 2 + grass.size.width * CGFloat(number)
+        grass.position = CGPoint(x: grassX, y: -size.height / 2 + grass.size.height / 2 - 18)
+        let speed = 100.0
+        let firstMoveLeft = SKAction.moveBy(x: -grass.size.width - grass.size.width * CGFloat(number), y: 0, duration: TimeInterval(grass.size.width + grass.size.width * CGFloat(number)) / speed)
+        
+        let resetGrass = SKAction.moveBy(x: size.width + grass.size.width, y: 0, duration: 0)
+        let grassFullMove = SKAction.moveBy(x: -size.width - grass.size.width, y: 0, duration: TimeInterval(size.width + grass.size.width) / speed)
+        let grassMovingForver = SKAction.repeatForever(SKAction.sequence([grassFullMove,resetGrass]))
+        
+        grass.run(SKAction.sequence([firstMoveLeft,resetGrass,grassMovingForver]))
+        }
     }
     
     func startTimers() {
@@ -103,6 +129,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         coin.physicsBody?.collisionBitMask = 0
         addChild(coin)
         
+        // Adding coins to starting possition
         let maxY = size.height / 2 - coin.size.height / 2
         let minY = -size.height / 2 + coin.size.height / 2
         let range = maxY - minY
@@ -123,6 +150,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         bomb.physicsBody?.collisionBitMask = 0
         addChild(bomb)
         
+        //Adding bombs to starting possition
         let maxY = size.height / 2 - bomb.size.height / 2
         let minY = -size.height / 2 + bomb.size.height / 2
         let range = maxY - minY
@@ -164,7 +192,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         yourScoreLabel = SKLabelNode(text: "Your Score:")
         yourScoreLabel?.position = CGPoint(x: 0, y: 200)
-        yourScoreLabel?.fontSize = 70
+        yourScoreLabel?.fontSize = 100
         yourScoreLabel?.zPosition = 1
 //        yourScoreLabel.color = UIColor.red
         if yourScoreLabel != nil {
