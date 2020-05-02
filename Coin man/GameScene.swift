@@ -29,6 +29,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var score = 0
     
+    
     override func didMove(to view: SKView) {
          
         physicsWorld.contactDelegate = self
@@ -93,7 +94,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                    self.createBomb()
                })
         
-        bonusTimer = Timer.scheduledTimer(withTimeInterval: 4, repeats: true, block: { (timer) in
+        bonusTimer = Timer.scheduledTimer(withTimeInterval: 12, repeats: true, block: { (timer) in
             self.createBonus()
         })
     }
@@ -165,7 +166,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func createBonus() {
-        let bonus = SKSpriteNode(imageNamed: "")
+        let bonus = SKSpriteNode(imageNamed: "bonus")
         bonus.physicsBody = SKPhysicsBody(rectangleOf: bonus.size)
         bonus.physicsBody?.affectedByGravity = false
         bonus.physicsBody?.categoryBitMask = bonusCategory
@@ -181,7 +182,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let bonusY = maxY - CGFloat(arc4random_uniform(UInt32(range)))
         bonus.position = CGPoint(x: size.width / 2 + bonus.size.width / 2, y: bonusY)
         
-        let moveLeft = SKAction.moveBy(x: -size.width - bonus.size.width, y: 0, duration: 4)
+        let moveLeft = SKAction.moveBy(x: -size.width - bonus.size.width, y: 0, duration: 2)
         
         bonus.run(SKAction.sequence([moveLeft, SKAction.removeFromParent()]))
     }
@@ -205,6 +206,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if contact.bodyB.categoryBitMask == bombCategory {
             contact.bodyB.node?.removeFromParent()
             gameOver()
+        }
+        if contact.bodyA.categoryBitMask == bonusCategory {
+            contact.bodyA.node?.removeFromParent()
+            score += 5
+            scoreLabel?.text = "Score: \(score)"
+        }
+        if contact.bodyB.categoryBitMask == bonusCategory {
+            contact.bodyB.node?.removeFromParent()
+            score += 5
+            scoreLabel?.text = "Score: \(score)"
         }
         
     }
