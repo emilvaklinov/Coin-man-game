@@ -243,6 +243,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         let playButton = SKSpriteNode(imageNamed: "play")
         playButton.position = CGPoint(x: 0, y: -200)
+        playButton.size = CGSize(width: 200, height: 200)
         playButton.name = "play"
         playButton.zPosition = 1
         addChild(playButton)
