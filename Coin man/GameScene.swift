@@ -224,6 +224,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         coinTimer?.invalidate()
         bombTimer?.invalidate()
+        bombTimer?.invalidate()
         
         yourScoreLabel = SKLabelNode(text: "Your Score:")
         yourScoreLabel?.position = CGPoint(x: 0, y: 200)
