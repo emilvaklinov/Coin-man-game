@@ -13,6 +13,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
    var coinMan: SKSpriteNode?
     var coinTimer: Timer?
     var bombTimer: Timer?
+    var bonusTimer: Timer?
 //    var ground: SKSpriteNode?
     var ceil: SKSpriteNode?
     var scoreLabel: SKLabelNode?
@@ -24,6 +25,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let coinCategory : UInt32 = 0x1 << 2
     let bombCategory : UInt32 = 0x1 << 3
     let groundAndCeilCategory : UInt32 = 0x1 << 4
+    let bonusCategory : UInt32 = 0x1 << 5
     
     var score = 0
     
@@ -32,7 +34,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.contactDelegate = self
         coinMan = childNode(withName: "coinMan") as? SKSpriteNode
         coinMan?.physicsBody?.categoryBitMask = coinManCategory
-        coinMan?.physicsBody?.contactTestBitMask = coinCategory | bombCategory
+        coinMan?.physicsBody?.contactTestBitMask = coinCategory | bombCategory | bonusCategory
         coinMan?.physicsBody?.collisionBitMask = groundAndCeilCategory
         var coinManRun: [SKTexture] = []
         for number in 1...5 {
@@ -49,6 +51,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
       startTimers()
       createGrass()
+    
     }
 
     func createGrass() {
@@ -86,9 +89,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                    self.createCoin()
                })
                
-               bombTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true, block: { (timer) in
+        bombTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true, block: { (timer) in
                    self.createBomb()
                })
+        
+        bonusTimer = Timer.scheduledTimer(withTimeInterval: 4, repeats: true, block: { (timer) in
+            self.createBonus()
+        })
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -155,6 +162,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let moveLeft = SKAction.moveBy(x: -size.width - bomb.size.width, y: 0, duration: 4.1)
         
         bomb.run(SKAction.sequence([moveLeft, SKAction.removeFromParent()]))
+    }
+    
+    func createBonus() {
+        let bonus = SKSpriteNode(imageNamed: "")
+        bonus.physicsBody = SKPhysicsBody(rectangleOf: bonus.size)
+        bonus.physicsBody?.affectedByGravity = false
+        bonus.physicsBody?.categoryBitMask = bonusCategory
+        bonus.physicsBody?.contactTestBitMask = coinManCategory
+        bonus.physicsBody?.collisionBitMask = 0
+        addChild(bonus)
+        
+        let sizingGrass = SKSpriteNode(imageNamed: "grass")
+        // Adding bonus to starting possition
+        let maxY = size.height / 2 - bonus.size.height / 2
+        let minY = -size.height / 2 + bonus.size.height / 2 + sizingGrass.size.height
+        let range = maxY - minY
+        let bonusY = maxY - CGFloat(arc4random_uniform(UInt32(range)))
+        bonus.position = CGPoint(x: size.width / 2 + bonus.size.width / 2, y: bonusY)
+        
+        let moveLeft = SKAction.moveBy(x: -size.width - bonus.size.width, y: 0, duration: 4)
+        
+        bonus.run(SKAction.sequence([moveLeft, SKAction.removeFromParent()]))
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
